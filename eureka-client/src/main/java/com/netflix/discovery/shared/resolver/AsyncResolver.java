@@ -27,22 +27,56 @@ import static com.netflix.discovery.EurekaClientNames.METRIC_RESOLVER_PREFIX;
  *
  * @author David Liu
  */
+
+/**
+ * 异步执行解析的集群解析器， 在{@Link #com.netflix.discovery.DiscoveryClient}
+ *
+ * 1.定时任务： AsyncResolver 内置定时任务，定时刷新 EndPoint 集群解析结果， 为什么要刷新？例如，Eureka-Server 的 serviceUrls 基于 DNS 配置。
+ */
 public class AsyncResolver<T extends EurekaEndpoint> implements ClosableResolver<T> {
     private static final Logger logger = LoggerFactory.getLogger(AsyncResolver.class);
 
     // Note that warm up is best effort. If the resolver is accessed by multiple threads pre warmup,
     // only the first thread will block for the warmup (up to the configurable timeout).
+
     private final AtomicBoolean warmedUp = new AtomicBoolean(false);
+    /**
+     * 是否已经调度定时任务 {@link #updateTask}
+     */
     private final AtomicBoolean scheduled = new AtomicBoolean(false);
 
     private final String name;    // a name for metric purposes
+
+    /**
+     * 委托的解析器
+     * 目前代码为 {@link com.netflix.discovery.shared.resolver.aws.ZoneAffinityClusterResolver}
+     */
     private final ClusterResolver<T> delegate;
+    /**
+     * 定时服务
+     */
     private final ScheduledExecutorService executorService;
+    /**
+     * 线程池执行器
+     */
     private final ThreadPoolExecutor threadPoolExecutor;
+    /**
+     * 后台任务
+     * 定时解析 EndPoint 集群
+     */
     private final TimedSupervisorTask backgroundTask;
+    /**
+     * 解析 EndPoint 集群结果
+     */
     private final AtomicReference<List<T>> resultsRef;
 
+    /**
+     * 定时解析 EndPoint 集群的频率
+     */
     private final int refreshIntervalMs;
+    /**
+     * 预热超时时间，单位：毫秒
+     */
     private final int warmUpTimeoutMs;
 
     // Metric timestamp, tracking last time when data were effectively changed.
@@ -107,21 +141,23 @@ public class AsyncResolver<T extends EurekaEndpoint> implements ClosableResolver
         this.refreshIntervalMs = refreshIntervalMs;
         this.warmUpTimeoutMs = warmUpTimeoutMs;
 
+        // 初始化 定时服务
         this.executorService = Executors.newScheduledThreadPool(1,
                 new ThreadFactoryBuilder()
                         .setNameFormat("AsyncResolver-" + name + "-%d")
                         .setDaemon(true)
                         .build());
-
+        // 初始化 线程池执行器
         this.threadPoolExecutor = new ThreadPoolExecutor(
-                1, executorThreadPoolSize, 0, TimeUnit.SECONDS,
+                1, // 线程池的大小
+                executorThreadPoolSize, 0, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),  // use direct handoff
                 new ThreadFactoryBuilder()
                         .setNameFormat("AsyncResolver-" + name + "-executor-%d")
                         .setDaemon(true)
                         .build()
         );
-
+        // 初始化 后台任务: 定时解析 EndPoint 集群
         this.backgroundTask = new TimedSupervisorTask(
                 this.getClass().getSimpleName(),
                 executorService,
@@ -152,17 +188,22 @@ public class AsyncResolver<T extends EurekaEndpoint> implements ClosableResolver
         return delegate.getRegion();
     }
 
+    // 解析 EndPoint 集群
+
     @Override
     public List<T> getClusterEndpoints() {
         long delay = refreshIntervalMs;
+        // 若未预热解析 EndPoint 集群结果，进行预热
         if (warmedUp.compareAndSet(false, true)) {
             if (!doWarmUp()) {
-                delay = 0;
+                delay = 0; // 预热失败，取消定时任务的第一次延迟
             }
         }
+        // 若未调度定时任务，进行调度
         if (scheduled.compareAndSet(false, true)) {
             scheduleTask(delay);
         }
+        // 返回endPoint集群
         return resultsRef.get();
     }
 

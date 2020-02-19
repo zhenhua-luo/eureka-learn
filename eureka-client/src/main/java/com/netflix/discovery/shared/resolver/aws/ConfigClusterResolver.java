@@ -16,6 +16,10 @@ import java.util.Map;
  *
  * @author David Liu
  */
+
+/**
+ * 配置文件的集群解析器
+ */
 public class ConfigClusterResolver implements ClusterResolver<AwsEndpoint> {
     private static final Logger logger = LoggerFactory.getLogger(ConfigClusterResolver.class);
 
@@ -32,6 +36,9 @@ public class ConfigClusterResolver implements ClusterResolver<AwsEndpoint> {
         return clientConfig.getRegion();
     }
 
+    /**
+     * 获取集群的服务端点 1.使用dns获取 2.通过配置获取
+     */
     @Override
     public List<AwsEndpoint> getClusterEndpoints() {
         if (clientConfig.shouldUseDnsForFetchingServiceUrls()) {
@@ -46,6 +53,7 @@ public class ConfigClusterResolver implements ClusterResolver<AwsEndpoint> {
     }
 
     private List<AwsEndpoint> getClusterEndpointsFromDns() {
+        // 获取 集群根地址
         String discoveryDnsName = getDNSName();
         int port = Integer.parseInt(clientConfig.getEurekaServerPort());
 
@@ -69,9 +77,11 @@ public class ConfigClusterResolver implements ClusterResolver<AwsEndpoint> {
     }
 
     private List<AwsEndpoint> getClusterEndpointsFromConfig() {
+        // 获取可用区
         String[] availZones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
+        // 获取 应用实例自己 的 可用区
         String myZone = InstanceInfo.getZone(availZones, myInstanceInfo);
-
+        // 获得 可用区与 serviceUrls 的映射
         Map<String, List<String>> serviceUrls = EndpointUtils
                 .getServiceUrlsMapFromConfig(clientConfig, myZone, clientConfig.shouldPreferSameZoneEureka());
 

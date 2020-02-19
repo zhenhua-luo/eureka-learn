@@ -75,12 +75,25 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tomasz Bak
  */
+
+/**
+ * 基于 DNS TXT 记录类型的集群解析器
+ */
 public class DnsTxtRecordClusterResolver implements ClusterResolver<AwsEndpoint> {
 
     private static final Logger logger = LoggerFactory.getLogger(DnsTxtRecordClusterResolver.class);
-
+    /**
+     * 地区
+     */
     private final String region;
+    /**
+     * 集群根地址，例如 myservice.net
+     */
     private final String rootClusterDNS;
+
+    /**
+     * 是否解析可用区( zone )
+     */
     private final boolean extractZoneFromDNS;
     private final int port;
     private final boolean isSecure;
@@ -107,6 +120,7 @@ public class DnsTxtRecordClusterResolver implements ClusterResolver<AwsEndpoint>
         return region;
     }
 
+
     @Override
     public List<AwsEndpoint> getClusterEndpoints() {
         List<AwsEndpoint> eurekaEndpoints = resolve(region, rootClusterDNS, extractZoneFromDNS, port, isSecure, relativeUri);
@@ -117,10 +131,12 @@ public class DnsTxtRecordClusterResolver implements ClusterResolver<AwsEndpoint>
 
     private static List<AwsEndpoint> resolve(String region, String rootClusterDNS, boolean extractZone, int port, boolean isSecure, String relativeUri) {
         try {
+            // 解析 第一层 DNS 记录
             Set<String> zoneDomainNames = resolve(rootClusterDNS);
             if (zoneDomainNames.isEmpty()) {
                 throw new ClusterResolverException("Cannot resolve Eureka cluster addresses; there are no data in TXT record for DN " + rootClusterDNS);
             }
+            // 记录 第二层 DNS 记录
             List<AwsEndpoint> endpoints = new ArrayList<>();
             for (String zoneDomain : zoneDomainNames) {
                 String zone = extractZone ? ResolverUtils.extractZoneFromHostName(zoneDomain) : null;

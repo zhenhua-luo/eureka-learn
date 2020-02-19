@@ -9,9 +9,20 @@ import java.util.List;
 /**
  * @author David Liu
  */
+
+/**
+ * 基于 region、zone 的 Eureka 服务端点实现类
+ */
 public class AwsEndpoint extends DefaultEndpoint {
 
+    /**
+     * 区域 ：可以理解为具体的机房
+     */
     protected final String zone;
+
+    /**
+     * 可用区： 可以理解为地理上的分区，华北、华东 根据项目的具体情况划分
+     */
     protected final String region;
 
     public AwsEndpoint(String serviceURI, String region, String zone) {

@@ -24,13 +24,23 @@ import java.util.List;
 /**
  * @author Tomasz Bak
  */
-public class DefaultEndpoint implements EurekaEndpoint {
 
+/**
+ * 服务端点的默认实现类
+ */
+public class DefaultEndpoint implements EurekaEndpoint {
+    // 网络地址
     protected final String networkAddress;
+    // 端口
     protected final int port;
+    // 是否安全
     protected final boolean isSecure;
+    // 相对路径
     protected final String relativeUri;
+    // 服务的绝对路径
     protected final String serviceUrl;
+
+    // serviceUrl 分解成几个属性
 
     public DefaultEndpoint(String serviceUrl) {
         this.serviceUrl = serviceUrl;
@@ -45,6 +55,8 @@ public class DefaultEndpoint implements EurekaEndpoint {
             throw new IllegalArgumentException("Malformed serviceUrl: " + serviceUrl);
         }
     }
+
+    // 几个属性合并成 serviceUrl
 
     public DefaultEndpoint(String networkAddress, int port, boolean isSecure, String relativeUri) {
         this.networkAddress = networkAddress;

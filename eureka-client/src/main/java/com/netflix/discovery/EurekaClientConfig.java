@@ -51,12 +51,18 @@ import com.netflix.discovery.shared.transport.EurekaTransportConfig;
  * @author Karthik Ranganathan
  *
  */
+
+/**
+ * Eureka-Client 配置接口。
+ */
 @ImplementedBy(DefaultEurekaClientConfig.class)
 public interface EurekaClientConfig {
 
     /**
      * Indicates how often(in seconds) to fetch the registry information from
      * the eureka server.
+     *
+     *  从 Eureka-Server 拉取注册信息频率，单位：秒
      *
      * @return the fetch interval in seconds.
      */
@@ -66,6 +72,8 @@ public interface EurekaClientConfig {
      * Indicates how often(in seconds) to replicate instance changes to be
      * replicated to the eureka server.
      *
+     * 向 Eureka-Server 同步实例对象信息变化频率，单位：秒
+     *
      * @return the instance replication interval in seconds.
      */
     int getInstanceInfoReplicationIntervalSeconds();
@@ -73,6 +81,8 @@ public interface EurekaClientConfig {
     /**
      * Indicates how long initially (in seconds) to replicate instance info
      * to the eureka server
+     *
+     * 向 Eureka-Server 同步应用信息变化初始化延迟，单位：秒
      */
     int getInitialInstanceInfoReplicationIntervalSeconds();
 
@@ -84,6 +94,8 @@ public interface EurekaClientConfig {
      * Eureka servers could be added or removed and this setting controls how
      * soon the eureka clients should know about it.
      * </p>
+     *
+     *  轮询获取 Eureka-Server 地址变更频率，单位：秒
      *
      * @return the interval to poll for eureka service url changes.
      */

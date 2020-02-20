@@ -56,6 +56,10 @@ import static com.netflix.discovery.PropertyBasedClientConfigConstants.*;
  * @author Karthik Ranganathan
  *
  */
+
+/**
+ * 基于配置文件的 Eureka-Client 配置实现类
+ */
 @Singleton
 @ProvidedBy(DefaultEurekaClientConfigProvider.class)
 public class DefaultEurekaClientConfig implements EurekaClientConfig {
@@ -68,8 +72,17 @@ public class DefaultEurekaClientConfig implements EurekaClientConfig {
     public static final String DEFAULT_ZONE = "defaultZone";
     public static final String URL_SEPARATOR = "\\s*,\\s*";
 
+    /**
+     * 命名空间
+     */
     private final String namespace;
+    /**
+     * 配置文件对象
+     */
     private final DynamicPropertyFactory configInstance;
+    /**
+     * HTTP 传输配置
+     */
     private final EurekaTransportConfig transportConfig;
 
     public DefaultEurekaClientConfig() {

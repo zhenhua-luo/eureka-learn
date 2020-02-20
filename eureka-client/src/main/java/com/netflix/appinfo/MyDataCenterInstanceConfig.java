@@ -26,6 +26,13 @@ import javax.inject.Singleton;
  * @author Karthik Ranganathan
  *
  */
+
+/**
+ * 非 AWS 数据中心的 Eureka 应用实例配置实现类
+ * 一般情况下，使用 MyDataCenterInstanceConfig 配置 Eureka 应用实例。
+ *
+ * 在 Spring-Cloud-Eureka 里，直接基于 EurekaInstanceConfig 接口重新实现了配置类
+ */
 @Singleton
 @ProvidedBy(MyDataCenterInstanceConfigProvider.class)
 public class MyDataCenterInstanceConfig extends PropertiesInstanceConfig implements EurekaInstanceConfig {

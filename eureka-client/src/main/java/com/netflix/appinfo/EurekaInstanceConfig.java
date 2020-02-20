@@ -39,6 +39,10 @@ import com.google.inject.ImplementedBy;
  * @author Karthik Ranganathan
  *
  */
+
+/**
+ * Eureka 应用实例配置接口： Application Consumer 和 Application Provider
+ */
 @ImplementedBy(CloudInstanceConfig.class)
 public interface EurekaInstanceConfig {
 
@@ -122,6 +126,11 @@ public interface EurekaInstanceConfig {
      *
      * @return time in seconds
      */
+    /**
+     * 租约续约频率，单位：秒。应用不断通过按照该频率发送心跳给 Eureka-Server 以达到续约的作用。
+     * 当 Eureka-Server 超过最大频率未收到续约（心跳），契约失效，进行应用移除。应用移除后，
+     * 其他应用无法从 Eureka-Server 获取该应用
+     */
     int getLeaseRenewalIntervalInSeconds();
 
     /**
@@ -139,6 +148,10 @@ public interface EurekaInstanceConfig {
      * </p>
      *
      * @return value indicating time in seconds.
+     */
+
+    /**
+     * 契约过期时间
      */
     int getLeaseExpirationDurationInSeconds();
 
@@ -209,6 +222,9 @@ public interface EurekaInstanceConfig {
      *
      * @return information that indicates which data center this instance is
      *         deployed in.
+     */
+    /**
+     * 数据中心信息
      */
     DataCenterInfo getDataCenterInfo();
 
@@ -370,6 +386,9 @@ public interface EurekaInstanceConfig {
     /**
      * Get the namespace used to find properties.
      * @return the namespace used to find properties.
+     */
+    /**
+     * 配置命名空间
      */
     String getNamespace();
 

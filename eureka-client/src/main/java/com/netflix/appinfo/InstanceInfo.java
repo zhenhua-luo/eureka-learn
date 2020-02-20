@@ -51,6 +51,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Karthik Ranganathan, Greg Kim
  */
+
+/**
+ * 应用实例信息。Eureka-Client 向 Eureka-Server 注册该对象信息。注册成功后，可以被其他 Eureka-Client 发现。
+ */
+
 @ProvidedBy(EurekaConfigBasedInstanceInfoProvider.class)
 @Serializer("com.netflix.discovery.converters.EntityBodyConverter")
 @XStreamAlias("instance")
